@@ -1,0 +1,22 @@
+cat << 'EOF' > .gitignore
+# Python environments & bytecode
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+
+# Cursor / VS Code IDE files
+.vscode/
+.cursor/
+*.code-workspace
+
+# OS / Local debug
+.DS_Store
+*.log
+EOF
