@@ -1,0 +1,10 @@
+{
+  "compx_kreo_anzu": {
+    "name": "Kreo Anzu",
+    "vids": ["3554"],
+    "report_id": 8,
+    "length": 17,
+    "payload": [8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 73],
+    "battery_index": 6
+  }
+}
