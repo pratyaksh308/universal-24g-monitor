@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "universal-24g-monitor"
+version = "0.1.0"
+description = "Universal battery telemetry monitor for 2.4GHz wireless peripherals"
+readme = "Readme.MD"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Pratyaksh Kumar Jha" }]
+dependencies = [
+    "hidapi>=0.14.0; platform_system == 'Windows'"
+]
+
+[project.scripts]
+universal-24g-monitor = "cli:main"
+
+[tool.setuptools]
+py-modules = ["cli"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["transport*", "data*"]
+
+[tool.setuptools.package-data]
+"*" = ["*.json", "*.rules"]

@@ -6,7 +6,9 @@ import platform
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent
-DEVICES_FILE = ROOT_DIR / "data" / "devices.json"
+LOCAL_DEVICES_FILE = ROOT_DIR / "data" / "devices.json"
+USER_CONFIG_DIR = Path.home() / ".config" / "universal-24g-monitor"
+USER_DEVICES_FILE = USER_CONFIG_DIR / "devices.json"
 
 if platform.system() == "Linux":
     from transport.linux_hidraw import poll_battery
@@ -16,11 +18,18 @@ else:
     raise NotImplementedError(f"Unsupported OS: {platform.system()}")
 
 def load_matrix():
-    if not DEVICES_FILE.exists():
-        print(f"❌ Error: Database not found at {DEVICES_FILE}")
-        sys.exit(1)
-    with open(DEVICES_FILE, "r") as f:
-        return json.load(f)
+    # 1. Prioritize custom user config in ~/.config
+    if USER_DEVICES_FILE.exists():
+        with open(USER_DEVICES_FILE, "r") as f:
+            return json.load(f)
+    
+    # 2. Fall back to bundled package database
+    if LOCAL_DEVICES_FILE.exists():
+        with open(LOCAL_DEVICES_FILE, "r") as f:
+            return json.load(f)
+
+    print(f"❌ Error: Database not found in {USER_DEVICES_FILE} or {LOCAL_DEVICES_FILE}")
+    sys.exit(1)
 
 def get_status(json_output=False):
     matrix = load_matrix()
