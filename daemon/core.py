@@ -1,59 +1,37 @@
-import os
-import selectors
+import json
 import time
-import glob
+import platform
+import sys
+from pathlib import Path
 
-def target_battery_packet():
-    nodes = []
-    for p in glob.glob('/sys/class/hidraw/hidraw*'):
-        try:
-            if "3554" in open(f"{p}/device/uevent").read():
-                nodes.append(f"/dev/{os.path.basename(p)}")
-        except: pass
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
 
-    sel = selectors.DefaultSelector()
-    fds = {}
+DEVICES_FILE = ROOT_DIR / "data" / "devices.json"
 
-    for node in nodes:
-        try:
-            fd = os.open(node, os.O_RDWR | os.O_NONBLOCK)
-            fds[node] = fd
-            sel.register(fd, selectors.EVENT_READ, data=node)
-        except Exception: pass
+if platform.system() == "Linux":
+    from transport.linux_hidraw import poll_battery
+elif platform.system() == "Windows":
+    from transport.windows_hidapi import poll_battery
+else:
+    raise NotImplementedError(f"Unsupported OS: {platform.system()}")
 
-    # The missing link: Report ID 8 + the exact 16-byte payload including the '73' checksum
-    payload = bytearray([8, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 73])
-    
-    for node, fd in fds.items():
-        try:
-            os.write(fd, payload)
-        except Exception: pass
+def run_daemon():
+    print(f"🚀 Starting Universal 2.4GHz Monitor [{platform.system()} Mode]...")
+    with open(DEVICES_FILE, "r") as f:
+        matrix = json.load(f)
 
-    print("🎧 Trap set with correct checksum. Waiting for the mouse to reply...")
-    start_time = time.time()
-    
-    while time.time() - start_time < 3.0:
-        events = sel.select(timeout=0.5)
-        for key, mask in events:
-            try:
-                data = os.read(key.fileobj, 64)
-                if data and len(data) >= 16:
-                    packet = list(data)
-                    print(f"\n✅ SUCCESS! CAUGHT PACKET on {key.data}")
-                    print(f"   Length: {len(packet)} bytes")
-                    print(f"   Decimal: {packet}")
-                    if len(packet) > 5:
-                        print(f"   🎯 Battery Value (Index 5): {packet[5]}")
-                    
-                    for fd in fds.values(): os.close(fd)
-                    sel.close()
-                    return
-            except BlockingIOError:
-                pass
-
-    print("⚠️ Timeout. No response received.")
-    for fd in fds.values(): os.close(fd)
-    sel.close()
+    try:
+        while True:
+            for _, config in matrix.items():
+                for vid in config.get("vids", []):
+                    level = poll_battery(config, vid)
+                    if level is not None:
+                        print(f"🔋 {config['name']}: {level}%")
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print("\n🛑 Daemon stopped.")
 
 if __name__ == "__main__":
-    target_battery_packet()
+    run_daemon()

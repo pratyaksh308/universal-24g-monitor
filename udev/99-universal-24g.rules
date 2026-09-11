@@ -1,0 +1,2 @@
+# Kreo Anzu and CompX 2.4GHz wireless receivers
+KERNEL=="hidraw*", ATTRS{idVendor}=="3554", MODE="0666", TAG+="uaccess"
