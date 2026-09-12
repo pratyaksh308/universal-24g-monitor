@@ -11,18 +11,21 @@ requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "Pratyaksh Kumar Jha" }]
 dependencies = [
-    "hidapi>=0.14.0; platform_system == 'Windows'"
+    "hidapi>=0.14.0; platform_system == 'Windows'",
+    "pystray>=0.19.0",
+    "Pillow>=9.0.0"
 ]
 
 [project.scripts]
 universal-24g-monitor = "cli:main"
 
 [tool.setuptools]
-py-modules = ["cli"]
+# Added "tray" and "daemon.core" to ensure all entry points are packaged
+py-modules = ["cli", "tray", "daemon.core"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["transport*", "data*"]
+include = ["transport*", "data*", "daemon*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.json", "*.rules"]
