@@ -130,11 +130,25 @@ def setup_tray(icon):
     icon.visible = True
     threading.Thread(target=update_tray, args=(icon,), daemon=True).start()
 
+def on_exit(icon, item):
+    icon.stop()
+
+def do_nothing(icon, item):
+    pass
+
 def main():
+    # Create a professional menu using disabled items as headers
+    custom_menu = pystray.Menu(
+        pystray.MenuItem("🔋 Universal 2.4G Monitor", action=do_nothing, enabled=False),
+        pystray.MenuItem("Version 1.0.0", action=do_nothing, enabled=False),
+        pystray.MenuItem("Exit", on_exit)
+    )
+
     icon = pystray.Icon(
         "24g_monitor",
         create_image(0, charging=False),
-        "Initializing Monitor..."
+        "Initializing Monitor...",
+        menu=custom_menu
     )
     icon.run(setup=setup_tray)
 
