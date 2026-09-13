@@ -18,7 +18,9 @@ dist/
 deb-build/
 *.deb
 *.egg-info/
-*.spec
+
+# Keep project packaging specs tracked, but ignore generated binaries
+*.exe
 
 # Cursor / VS Code IDE files
 .vscode/

@@ -63,14 +63,14 @@ Most budget and midrange wireless mice (powered by CompX, Beken, or Telink micro
 
 ### Windows
 
-1. Install the project and its Windows dependencies with `python -m pip install .`.
-2. Run `universal-24g-monitor-tray` to start the taskbar monitor, or run `universal-24g-monitor --status` for a one-shot reading.
+We provide a packaged Windows executable (`.exe`) that runs the taskbar monitor directly on a standard Windows desktop.
 
-To run automatically at boot, create a shortcut to `universal-24g-monitor-tray` in your startup folder (`Win + R` -> `shell:startup`).
+1. Download the latest Windows release from the Releases tab.
+2. Extract the archive if needed and launch `Universal-2.4G-Monitor.exe`.
+3. The tray icon will appear in the Windows taskbar and begin monitoring battery telemetry.
+4. If you want the app to start automatically with Windows, create a shortcut to the EXE in your Startup folder (`Win + R` -> `shell:startup`).
 
 ---
-
-
 
 ### Linux
 
