@@ -1,10 +1,10 @@
-# Universal 2.4GHz Monitor 🔋
+# Universal 2.4GHz Monitor 🔋✨
 
-A lightweight, cross-platform battery telemetry monitor and system tray widget for 2.4GHz wireless peripherals. Built to give budget and enthusiast mice accurate battery reporting on both **Windows** and **Linux** without heavy, bloated OEM software.
+A lightweight, cross-platform battery telemetry monitor and system tray widget for 2.4GHz wireless peripherals. Built to give budget and enthusiast mice accurate battery reporting on both **Windows** and **Linux** without heavy, bloated OEM software. 🚀
 
 ---
 
-## ⚡ Why This Exists
+## ⚡ Why This Exists 💡
 
 Most budget and midrange wireless mice (powered by CompX, Beken, or Telink microcontrollers) suffer from severe battery reporting flaws:
 
@@ -14,72 +14,75 @@ Most budget and midrange wireless mice (powered by CompX, Beken, or Telink micro
 
 **Universal 2.4GHz Monitor** solves these issues with:
 
-- **Hardware State Freezing:** Intelligently locks display percentages during active charging while rendering an inline charging indicator.
-- **Voltage Sag Detection:** Detects sharp discharge deltas (>= 10%) upon unplugging to immediately restore live telemetry.
-- **Debounced Polling:** Suppresses false disconnections caused by intermittent wireless packet drops.
-- **User-Scoped Security on Linux:** Relies on vendor-locked `udev` rules and `uaccess` to grant the logged-in user access without making `/dev/hidraw` endpoints world-writable.
+- **⚙️ Hardware State Freezing:** Intelligently locks display percentages during active charging while rendering an inline charging indicator.
+- **📉 Voltage Sag Detection:** Detects sharp discharge deltas (>= 10%) upon unplugging to immediately restore live telemetry.
+- **🧠 Debounced Polling:** Suppresses false disconnections caused by intermittent wireless packet drops.
+- **🔒 User-Scoped Security on Linux:** Relies on vendor-locked `udev` rules and `uaccess` to grant the logged-in user access without making `/dev/hidraw` endpoints world-writable.
 
 ---
 
 
 
-## 🖥️ System Tray Preview & Screenshots
+## 🖥️ System Tray Preview & Screenshots 📸
 
-- **On Battery:** Renders a clean, color-coded battery gauge (Green -> Amber -> Red) displaying live capacity.
-- **Charging:** Displays the locked pre-charge level overlaid with a high-contrast charging bolt badge.
-- **Offline / Bluetooth Mode:** Safely drops to an empty standby icon when receivers enter sleep mode or switch wireless channels.
+- **🔋 On Battery:** Renders a clean, color-coded battery gauge (Green -> Amber -> Red) displaying live capacity.
+- **⚡ Charging:** Displays the locked pre-charge level overlaid with a high-contrast charging bolt badge.
+- **📴 Offline / Bluetooth Mode:** Safely drops to an empty standby icon when receivers enter sleep mode or switch wireless channels.
 
 
 
-### Windows
+### 🪟 Windows
 
-**On Battery:**  
+**🔋 On Battery:**  
 ![Windows On Battery](assets/screenshots/windows_On-Battery.png)
 
-**Charging:**  
+**⚡ Charging:**  
 ![Windows Charging](assets/screenshots/windows_Charging.png)
 
-**Offline / Bluetooth Mode:**  
+**📴 Offline / Bluetooth Mode:**  
 ![Windows Wireless/BT Mode](assets/screenshots/wireless_or_BT-Mode.png)
 
-### Linux
+### 🐧 Linux
 
-**On Battery:**  
+**🔋 On Battery:**  
 ![Linux On Battery](assets/screenshots/linux_onBattery.png)
 
-**Charging:**  
+**⚡ Charging:**  
 ![Linux Charging](assets/screenshots/linux_charging.png)
 
-**Offline / Bluetooth Mode:**  
+**📴 Offline / Bluetooth Mode:**  
 ![Linux Wireless/BT Mode](assets/screenshots/linux_noSignal.png)
 
 ---
 
 
 
-## 🚀 Quick Start
+## 🚀 Quick Start ⚡
 
 
 
-### Windows
+### 🪟 Windows
 
-We provide a packaged Windows executable (`.exe`) that runs the taskbar monitor directly on a standard Windows desktop.
+We provide a packaged Windows executable (`.exe`) that runs the taskbar monitor directly on a standard Windows desktop. 🪟
 
-1. Download the latest Windows release from the Releases tab.
-2. Extract the archive if needed and launch `Universal-2.4G-Monitor.exe`.
-3. The tray icon will appear in the Windows taskbar and begin monitoring battery telemetry.
-4. If you want the app to start automatically with Windows, create a shortcut to the EXE in your Startup folder (`Win + R` -> `shell:startup`).
+1. Download the latest Windows release from the Releases tab. 📥
+2. Extract the archive and keep the `devices.json` file in the same folder as `Universal-2.4G-Monitor.exe`. 📁
+3. Launch `Universal-2.4G-Monitor.exe`. ▶️
+4. The tray icon will appear in the Windows taskbar and begin monitoring battery telemetry. 🖥️
+5. If you want the app to start automatically with Windows, create a shortcut to the EXE in your Startup folder (`Win + R` -> `shell:startup`). 🚀
+
+> The app loads supported device definitions from `devices.json` next to the executable. Keep both files together in the same folder for the Windows build to work correctly. ✅
 
 ---
 
-### Linux
+### 🐧 Linux
 
-We provide a native Debian package (`.deb`) that installs the application files, system dependencies, and the matching `udev` rule. It does not configure desktop autostart.
+We provide a native Debian package (`.deb`) that installs the application files, system dependencies, and the matching `udev` rule. It does not configure desktop autostart. 🐧
 
-1. Download the latest `universal-24g-monitor_1.0.0_all.deb` from the Releases tab.
+1. Download the latest `universal-24g-monitor_1.0.0_all.deb` from the Releases tab. 📥
 2. Install the package using `apt` (this automatically resolves and installs the required GTK UI libraries):
   `sudo apt install ./universal-24g-monitor_1.0.0_all.deb`
-3. Unplug and reconnect your 2.4GHz USB receiver once so the newly installed hardware rules take effect.
+3. Unplug and reconnect your 2.4GHz USB receiver once so the newly installed hardware rules take effect. 🔌
 4. Start a one-shot status query with:
   `python3 /usr/share/universal-24g-monitor/cli.py --status`
 5. Start the tray monitor with:
@@ -89,7 +92,7 @@ We provide a native Debian package (`.deb`) that installs the application files,
 
 
 
-## 📟 CLI & Bar Integration (Waybar / Polybar)
+## 📟 CLI & Bar Integration (Waybar / Polybar) 🧩
 
 Query telemetry directly from your terminal:
 
@@ -117,7 +120,7 @@ python cli.py --json
 
 
 
-## 🛠️ Adding Your Mouse (`devices.json`)
+## 🛠️ Adding Your Mouse (`devices.json`) 🐭
 
 Support for new devices does not require altering Python code. All hardware definitions live inside `devices.json`:
 
@@ -136,18 +139,18 @@ Support for new devices does not require altering Python code. All hardware defi
 
 
 
-### Profile Parameters
+### Profile Parameters 🧾
 
-- `vids`: Array of 4-digit hexadecimal USB Vendor IDs associated with the 2.4GHz receiver.
-- `payload`: The raw byte array sent to wake and query the mouse microcontroller.
-- `length`: Expected byte length of the incoming HID telemetry response.
-- `battery_index`: Zero-based index where the percentage byte (0-100) is stored in the response packet.
+- `vids`: Array of 4-digit hexadecimal USB Vendor IDs associated with the 2.4GHz receiver. 🔢
+- `payload`: The raw byte array sent to wake and query the mouse microcontroller. 📦
+- `length`: Expected byte length of the incoming HID telemetry response. 📏
+- `battery_index`: Zero-based index where the percentage byte (0-100) is stored in the response packet. 📍
 
 ---
 
 
 
-## 🤝 Contributing
+## 🤝 Contributing 🙌
 
 Have a wireless peripheral not yet supported?
 
@@ -160,6 +163,6 @@ Have a wireless peripheral not yet supported?
 
 
 
-## 📜 License
+## 📜 License 📝
 
 Distributed under the MIT License. See `LICENSE` for details.
