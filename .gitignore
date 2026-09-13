@@ -8,6 +8,8 @@ __pycache__/
 # Distribution / Packaging
 build/
 dist/
+deb-build/
+*.deb
 *.egg-info/
 *.spec
 
