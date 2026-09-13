@@ -1,14 +1,16 @@
-import sys
 import os
+import signal
+import sys
+import threading
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pystray
 from PIL import Image, ImageDraw, ImageFont
-import threading
-import time
-import signal
+
 from cli import load_matrix
 from transport.windows_hidapi import poll_battery
+
 
 def create_image(percentage, charging=False):
     image = Image.new('RGBA', (64, 64), color=(0, 0, 0, 0))
@@ -49,16 +51,27 @@ def update_tray(icon):
     is_charging = False
     missed_polls = 0
     last_known_device_name = "Wireless Mouse"
-    
+    missing_profiles_warned = False
+
     stop_event = threading.Event()
     icon._stop_event = stop_event
     while icon.visible and not stop_event.is_set():
         try:
             matrix = load_matrix()
-            raw_level = None 
+            if not matrix:
+                if not missing_profiles_warned:
+                    print("[Tray Warning] No device profiles loaded. Check devices.json next to the executable.")
+                    missing_profiles_warned = True
+                label = "Universal 2.4G Monitor\nStatus: Device profiles unavailable"
+                icon.icon = create_image(0, charging=False)
+                icon.title = label
+                stop_event.wait(10)
+                continue
+
+            raw_level = None
             device_found = False
             matched_config = None
-            
+
             for _, config in matrix.items():
                 for vid in config.get("vids", []):
                     level = poll_battery(config, vid)
@@ -69,12 +82,12 @@ def update_tray(icon):
                         break
                 if device_found:
                     break
-            
+
             if device_found and raw_level is not None:
-                missed_polls = 0  
+                missed_polls = 0
                 device_name = matched_config.get("name", "Wireless Mouse")
                 last_known_device_name = device_name
-                
+
                 if last_raw_level is not None:
                     if raw_level > last_raw_level:
                         if not is_charging:
@@ -87,17 +100,20 @@ def update_tray(icon):
                                 frozen_level = raw_level
                         else:
                             frozen_level = raw_level
+                    else:
+                        if not is_charging:
+                            frozen_level = raw_level
                 else:
                     frozen_level = raw_level
-                
+
                 last_raw_level = raw_level
                 status = "Charging" if is_charging else "On Battery"
                 label = f"{device_name}\nBattery Level: {frozen_level}%\nStatus: {status}"
-                
+
                 icon.icon = create_image(frozen_level, charging=is_charging)
                 icon.title = label
                 print(f"[Tray Updated] {device_name} | Display: {frozen_level}% | Status: {status}")
-                
+
             else:
                 missed_polls += 1
                 if missed_polls >= 2:
@@ -105,14 +121,14 @@ def update_tray(icon):
                     icon.icon = create_image(0, charging=False)
                     icon.title = label
                     is_charging = False
-                    last_raw_level = None 
-                    print(f"[Tray Updated] Offline")
+                    last_raw_level = None
+                    print("[Tray Updated] Offline")
                 else:
                     print("[Tray Warning] Missed single packet, debouncing...")
 
         except Exception as e:
             print(f"[Tray Error] {e}")
-            
+
         stop_event.wait(5)
 
 def setup_tray(icon):
