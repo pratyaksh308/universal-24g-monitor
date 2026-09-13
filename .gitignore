@@ -2,8 +2,15 @@
 .venv/
 env/
 __pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
 *.py[cod]
 *$py.class
+coverage.xml
+.coverage
+htmlcov/
 
 # Distribution / Packaging
 build/
@@ -20,4 +27,8 @@ deb-build/
 
 # OS / Local debug
 .DS_Store
+desktop.ini
+Thumbs.db
 *.log
+*.tmp
+*.swp

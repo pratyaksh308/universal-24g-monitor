@@ -17,7 +17,7 @@ Most budget and midrange wireless mice (powered by CompX, Beken, or Telink micro
 - **Hardware State Freezing:** Intelligently locks display percentages during active charging while rendering an inline charging indicator.
 - **Voltage Sag Detection:** Detects sharp discharge deltas (>= 10%) upon unplugging to immediately restore live telemetry.
 - **Debounced Polling:** Suppresses false disconnections caused by intermittent wireless packet drops.
-- **Zero-Privilege Security on Linux:** Relies on vendor-locked `udev` rules to prevent broad, insecure access to `/dev/hidraw`* endpoints.
+- **User-Scoped Security on Linux:** Relies on vendor-locked `udev` rules and `uaccess` to grant the logged-in user access without making `/dev/hidraw` endpoints world-writable.
 
 ---
 
@@ -63,11 +63,10 @@ Most budget and midrange wireless mice (powered by CompX, Beken, or Telink micro
 
 ### Windows
 
-1. Download the latest `Universal-2.4G-Monitor.exe` and `devices.json` from the Releases tab.
-2. Place `devices.json` in the same folder as `Universal-2.4G-Monitor.exe`.
-3. Double-click `Universal-2.4G-Monitor.exe`. The battery icon will appear directly in your taskbar notification area.
+1. Install the project and its Windows dependencies with `python -m pip install .`.
+2. Run `universal-24g-monitor-tray` to start the taskbar monitor, or run `universal-24g-monitor --status` for a one-shot reading.
 
-To run automatically at boot, drop a shortcut of `Universal-2.4G-Monitor.exe` into your startup folder (`Win + R` -> `shell:startup`).
+To run automatically at boot, create a shortcut to `universal-24g-monitor-tray` in your startup folder (`Win + R` -> `shell:startup`).
 
 ---
 
@@ -75,14 +74,16 @@ To run automatically at boot, drop a shortcut of `Universal-2.4G-Monitor.exe` in
 
 ### Linux
 
-We provide a native Debian package (`.deb`) that automatically handles system dependencies, `udev` hardware permissions, and background autostart configuration.
+We provide a native Debian package (`.deb`) that installs the application files, system dependencies, and the matching `udev` rule. It does not configure desktop autostart.
 
 1. Download the latest `universal-24g-monitor_1.0.0_all.deb` from the Releases tab.
 2. Install the package using `apt` (this automatically resolves and installs the required GTK UI libraries):
-  sudo apt install ./universal-24g-monitor_1.0.0_all.deb
+  `sudo apt install ./universal-24g-monitor_1.0.0_all.deb`
 3. Unplug and reconnect your 2.4GHz USB receiver once so the newly installed hardware rules take effect.
-4. The monitor will now automatically start in the background every time you log in. To start it immediately without rebooting, run:
-  universal-24g-monitor &
+4. Start a one-shot status query with:
+  `python3 /usr/share/universal-24g-monitor/cli.py --status`
+5. Start the tray monitor with:
+  `python3 /usr/share/universal-24g-monitor/tray.py`
 
 ---
 
@@ -150,7 +151,7 @@ Support for new devices does not require altering Python code. All hardware defi
 
 Have a wireless peripheral not yet supported?
 
-1. Use Wireshark with USBPcap (Windows) or `diagnose.py` (Linux) to capture the query payload and battery byte index from your receiver.
+1. Use Wireshark with USBPcap (Windows) or another HID capture tool (Linux) to capture the query payload and battery byte index from your receiver.
 2. Add your mouse configuration to `devices.json`.
 3. If on Linux, add a matching entry with your receiver's Vendor ID into `udev/99-universal-24g.rules`.
 4. Open a Pull Request!

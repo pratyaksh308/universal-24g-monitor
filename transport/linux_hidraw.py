@@ -52,6 +52,9 @@ def poll_battery(config: dict, vid):
         battery_level = None
         start_time = time.time()
         expected_report_id = config.get("report_id")
+        battery_index = config.get("battery_index", -1)
+        if battery_index < 0:
+            return None
 
         # 5. Poll with parity for report ID prefixes
         while time.time() - start_time < 1.0:
@@ -65,15 +68,15 @@ def poll_battery(config: dict, vid):
                             continue
 
                         # Full report matching config
-                        if len(data) == config["length"]:
-                            battery_level = data[config["battery_index"]]
+                        if len(data) == config["length"] and battery_index < len(data):
+                            battery_level = data[battery_index]
                             break
                         # Stripped report ID offset
-                        elif len(data) == config["length"] - 1 and len(data) > (config["battery_index"] - 1):
-                            battery_level = data[config["battery_index"] - 1]
+                        elif len(data) == config["length"] - 1 and 0 <= battery_index - 1 < len(data):
+                            battery_level = data[battery_index - 1]
                             break
-                        elif len(data) > config["battery_index"]:
-                            battery_level = data[config["battery_index"]]
+                        elif battery_index < len(data):
+                            battery_level = data[battery_index]
                             break
                 except (BlockingIOError, OSError):
                     pass

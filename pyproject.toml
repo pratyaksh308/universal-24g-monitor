@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "universal-24g-monitor"
-version = "0.1.0"
+version = "1.0.0"
 description = "Universal battery telemetry monitor for 2.4GHz wireless peripherals"
 readme = "Readme.MD"
 requires-python = ">=3.8"
@@ -18,14 +18,14 @@ dependencies = [
 
 [project.scripts]
 universal-24g-monitor = "cli:main"
+universal-24g-monitor-tray = "tray:main"
 
 [tool.setuptools]
-# Added "tray" and "daemon.core" to ensure all entry points are packaged
-py-modules = ["cli", "tray", "daemon.core"]
+py-modules = ["cli", "tray"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["transport*", "data*", "daemon*"]
+include = ["transport*", "data*"]
 
 [tool.setuptools.package-data]
 "*" = ["*.json", "*.rules"]

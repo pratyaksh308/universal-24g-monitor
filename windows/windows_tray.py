@@ -6,6 +6,7 @@ import pystray
 from PIL import Image, ImageDraw, ImageFont
 import threading
 import time
+import signal
 from cli import load_matrix
 from transport.windows_hidapi import poll_battery
 
@@ -49,7 +50,9 @@ def update_tray(icon):
     missed_polls = 0
     last_known_device_name = "Wireless Mouse"
     
-    while icon.visible:
+    stop_event = threading.Event()
+    icon._stop_event = stop_event
+    while icon.visible and not stop_event.is_set():
         try:
             matrix = load_matrix()
             raw_level = None 
@@ -110,13 +113,15 @@ def update_tray(icon):
         except Exception as e:
             print(f"[Tray Error] {e}")
             
-        time.sleep(5)
+        stop_event.wait(5)
 
 def setup_tray(icon):
     icon.visible = True
     threading.Thread(target=update_tray, args=(icon,), daemon=True).start()
 
 def on_exit(icon, item):
+    if hasattr(icon, "_stop_event"):
+        icon._stop_event.set()
     icon.stop()
 
 def do_nothing(icon, item):
@@ -135,6 +140,9 @@ def main():
         "Initializing Monitor...",
         menu=custom_menu
     )
+    signal.signal(signal.SIGINT, lambda signum, frame: on_exit(icon, None))
+    if hasattr(signal, "SIGTERM"):
+        signal.signal(signal.SIGTERM, lambda signum, frame: on_exit(icon, None))
     icon.run(setup=setup_tray)
 
 if __name__ == "__main__":

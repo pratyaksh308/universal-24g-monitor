@@ -4,6 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import threading
 import time
+import signal
 import gi
 from PIL import Image, ImageDraw
 
@@ -25,6 +26,8 @@ class LinuxBatteryMonitor:
             AyatanaAppIndicator3.IndicatorCategory.HARDWARE
         )
         
+        self.indicator.set_title("Universal 2.4GHz Monitor")
+        self.indicator.set_label("Universal 2.4GHz Monitor", "")
         self.indicator.set_icon_theme_path(self.icon_dir)
         self.indicator.set_status(AyatanaAppIndicator3.IndicatorStatus.ACTIVE)
         
@@ -52,6 +55,11 @@ class LinuxBatteryMonitor:
         self.is_charging = False
         self.missed_polls = 0
         self.last_known_device_name = "Wireless Mouse"
+        self.stop_event = threading.Event()
+
+    def handle_signal(self, signum, frame):
+        self.stop_event.set()
+        Gtk.main_quit()
 
     def generate_offline_icon(self):
         icon_name = "bat_offline"
@@ -131,9 +139,11 @@ class LinuxBatteryMonitor:
                                 self.frozen_level = self.last_raw_level
                                 self.is_charging = True
                         elif raw_level < self.last_raw_level:
-                            # Any drop confirms the charging cable was removed
-                            self.is_charging = False
-                            self.frozen_level = raw_level
+                            if self.is_charging and (self.last_raw_level - raw_level) >= 10:
+                                self.is_charging = False
+                                self.frozen_level = raw_level
+                            elif not self.is_charging:
+                                self.frozen_level = raw_level
                     else:
                         self.frozen_level = raw_level
                     
@@ -149,7 +159,7 @@ class LinuxBatteryMonitor:
                     
                 else:
                     self.missed_polls += 1
-                    if self.missed_polls >= 12:  # Wait 60 seconds before triggering Offline state
+                    if self.missed_polls >= 2:
                         self.is_charging = False
                         self.last_raw_level = None 
                         menu_label = f"{self.last_known_device_name}\nStatus: Sleeping / Offline"
@@ -157,21 +167,26 @@ class LinuxBatteryMonitor:
                         GLib.idle_add(self.update_ui, menu_label, icon_name, "")
                         print(f"[Tray Updated] Offline / Sleeping")
                     else:
-                        print(f"[Tray Warning] Missed packet {self.missed_polls}/12, debouncing shallow sleep...")
+                        print(f"[Tray Warning] Missed packet {self.missed_polls}/2, debouncing shallow sleep...")
 
             except Exception as e:
                 print(f"[Tray Error] {e}")
                 
-            time.sleep(5)
+            self.stop_event.wait(5)
 
     def start(self):
+        signal.signal(signal.SIGINT, self.handle_signal)
+        signal.signal(signal.SIGTERM, self.handle_signal)
         thread = threading.Thread(target=self.poll_loop, daemon=True)
         thread.start()
         Gtk.main()
 
     def stop(self, source=None):
+        self.stop_event.set()
         Gtk.main_quit()
-        sys.exit(0)
+
+def main():
+    LinuxBatteryMonitor().start()
 
 if __name__ == "__main__":
     app = LinuxBatteryMonitor()
