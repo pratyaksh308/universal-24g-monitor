@@ -51,6 +51,7 @@ def poll_battery(config: dict, vid):
 
         battery_level = None
         start_time = time.time()
+        expected_report_id = config.get("report_id")
 
         # 5. Poll with parity for report ID prefixes
         while time.time() - start_time < 1.0:
@@ -59,6 +60,10 @@ def poll_battery(config: dict, vid):
                 try:
                     data = os.read(key.fileobj, 64)
                     if data:
+                        # STRICT FILTER: Ignore any packet that doesn't match our expected telemetry Report ID
+                        if expected_report_id is not None and data[0] != expected_report_id:
+                            continue
+
                         # Full report matching config
                         if len(data) == config["length"]:
                             battery_level = data[config["battery_index"]]

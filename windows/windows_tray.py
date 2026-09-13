@@ -1,41 +1,15 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pystray
 from PIL import Image, ImageDraw, ImageFont
 import threading
 import time
-import platform
 from cli import load_matrix
-
-if platform.system() == "Linux":
-    from transport.linux_hidraw import poll_battery
-elif platform.system() == "Windows":
-    from transport.windows_hidapi import poll_battery
+from transport.windows_hidapi import poll_battery
 
 def create_image(percentage, charging=False):
-    is_linux = platform.system() == "Linux"
-    
-    if is_linux:
-        # AppIndicator expects exactly 22x22 pixels.
-        image = Image.new('RGBA', (22, 22), color=(0, 0, 0, 0))
-        draw = ImageDraw.Draw(image)
-        
-        # Pixel-perfect 22x22 battery outline
-        draw.rectangle([2, 6, 18, 16], outline=(240, 240, 240, 255), width=1)
-        draw.rectangle([19, 9, 20, 13], fill=(240, 240, 240, 255))
-        
-        # Fill calculation
-        fill_width = int(14 * (percentage / 100.0))
-        if fill_width > 0:
-            color = (46, 204, 113, 255) if percentage > 20 else (231, 76, 60, 255)
-            draw.rectangle([4, 8, 3 + fill_width, 14], fill=color)
-            
-        if charging:
-            # Miniature charging bolt
-            bolt = [(10, 4), (6, 11), (10, 11), (9, 17), (14, 9), (10, 9)]
-            draw.polygon(bolt, fill=(255, 223, 0, 255))
-            
-        return image
-
-    # Windows-safe large icon (64x64)
     image = Image.new('RGBA', (64, 64), color=(0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     
@@ -95,7 +69,6 @@ def update_tray(icon):
             
             if device_found and raw_level is not None:
                 missed_polls = 0  
-                
                 device_name = matched_config.get("name", "Wireless Mouse")
                 last_known_device_name = device_name
                 
@@ -104,7 +77,6 @@ def update_tray(icon):
                         if not is_charging:
                             frozen_level = last_raw_level
                             is_charging = True
-                            
                     elif raw_level < last_raw_level:
                         if is_charging:
                             if (last_raw_level - raw_level) >= 10:
@@ -116,13 +88,11 @@ def update_tray(icon):
                     frozen_level = raw_level
                 
                 last_raw_level = raw_level
-                
                 status = "Charging" if is_charging else "On Battery"
                 label = f"{device_name}\nBattery Level: {frozen_level}%\nStatus: {status}"
                 
                 icon.icon = create_image(frozen_level, charging=is_charging)
                 icon.title = label
-                
                 print(f"[Tray Updated] {device_name} | Display: {frozen_level}% | Status: {status}")
                 
             else:
