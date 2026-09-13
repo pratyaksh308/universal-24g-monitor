@@ -26,7 +26,7 @@ Package: universal-24g-monitor
 Version: 1.0.0
 Architecture: all
 Maintainer: Pratyaksh Kumar Jha
-Depends: python3, python3-gi, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
+Depends: python3, python3-pil, python3-gi, gir1.2-gtk-3.0, gir1.2-ayatanaappindicator3-0.1
 Description: Universal 2.4GHz Monitor
 EOF
 
